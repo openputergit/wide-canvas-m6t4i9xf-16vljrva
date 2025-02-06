@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Marks Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-gray-800">Academic Marks Management System</h1>
+            <p class="text-gray-600 mt-2">Efficiently manage and track student performance</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Left Panel - Entry Form -->
+            <div class="w-full md:w-2/3 bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Marks Entry Form</h2>
+                <form id="marksEntryForm" class="space-y-4">
+                    <!-- Basic Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Stream</label>
+                            <select id="stream" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select Stream</option>
+                                <option value="science">Science</option>
+                                <option value="commerce">Commerce</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Year</label>
+                            <select id="year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select Year</option>
+                                <option value="1PU">1 PU</option>
+                                <option value="2PU">2 PU</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Exam Type</label>
+                            <select id="examType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select Exam</option>
+                                <option value="midterm">Midterm</option>
+                                <option value="final">Final Exam</option>
+                                <option value="unit">Unit Test</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Combination</label>
+                            <select id="combination" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select Combination</option>
+                                <!-- Will be populated based on stream -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Section</label>
+                            <select id="section" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select Section</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Student Name</label>
+                            <input type="text" id="studentName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Marks Entry -->
+                    <div id="marksContainer" class="space-y-4">
+                        <!-- Will be dynamically populated based on combination -->
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button type="reset" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Clear</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Panel - Data Management -->
+            <div class="w-full md:w-1/3 space-y-6">
+                <!-- Export Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Export Data</h2>
+                    <div class="space-y-4">
+                        <button id="exportBtn" class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                            <i class="bi bi-file-earmark-excel me-2"></i> Export to Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Search Records</h2>
+                    <div class="space-y-4">
+                        <input type="text" id="searchInput" placeholder="Search by student name..." 
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <button id="searchBtn" class="w-full px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600">
+                            <i class="bi bi-search me-2"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Recent Entries</h2>
+            <div class="overflow-x-auto">
+                <table id="resultsTable" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stream</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store data in localStorage for demo purposes
+        let marksData = JSON.parse(localStorage.getItem('marksData')) || [];
+
+        // Combination mapping
+        const combinations = {
+            science: ['PCMB', 'PCMC'],
+            commerce: ['ABMS', 'SEBA']
+        };
+
+        // Subject mapping
+        const subjects = {
+            PCMB: ['Physics', 'Chemistry', 'Mathematics', 'Biology'],
+            PCMC: ['Physics', 'Chemistry', 'Mathematics', 'Computer Science'],
+            ABMS: ['Accountancy', 'Business Studies', 'Mathematics', 'Statistics'],
+            SEBA: ['Statistics', 'Economics', 'Business Studies', 'Accountancy']
+        };
+
+        // Update combination dropdown based on stream
+        document.getElementById('stream').addEventListener('change', function() {
+            const combinationSelect = document.getElementById('combination');
+            combinationSelect.innerHTML = '<option value="">Select Combination</option>';
+            
+            const streamCombinations = combinations[this.value] || [];
+            streamCombinations.forEach(combo => {
+                combinationSelect.add(new Option(combo, combo));
+            });
+        });
+
+        // Update marks input fields based on combination
+        document.getElementById('combination').addEventListener('change', function() {
+            const marksContainer = document.getElementById('marksContainer');
+            marksContainer.innerHTML = '';
+            
+            const selectedSubjects = subjects[this.value] || [];
+            selectedSubjects.forEach(subject => {
+                marksContainer.innerHTML += `
+                    <div class="grid grid-cols-2 gap-4 items-center">
+                        <label class="block text-sm font-medium text-gray-700">${subject}</label>
+                        <input type="number" name="${subject}" min="0" max="100" 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                `;
+            });
+        });
+
+        // Form submission
+        document.getElementById('marksEntryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: Date.now(),
+                student: document.getElementById('studentName').value,
+                stream: document.getElementById('stream').value,
+                year: document.getElementById('year').value,
+                exam: document.getElementById('examType').value,
+                combination: document.getElementById('combination').value,
+                section: document.getElementById('section').value,
+                marks: {}
+            };
+
+            // Collect marks
+            const markInputs = document.querySelectorAll('#marksContainer input');
+            markInputs.forEach(input => {
+                formData.marks[input.name] = input.value;
+            });
+
+            marksData.push(formData);
+            localStorage.setItem('marksData', JSON.stringify(marksData));
+            
+            updateTable();
+            this.reset();
+            alert('Marks entered successfully!');
+        });
+
+        // Export to Excel
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const ws = XLSX.utils.json_to_sheet(marksData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Marks Data");
+            XLSX.writeFile(wb, "marks_data.xlsx");
+        });
+
+        // Search functionality
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = marksData.filter(entry => 
+                entry.student.toLowerCase().includes(searchTerm)
+            );
+            updateTable(filteredData);
+        });
+
+        // Update table
+        function updateTable(data = marksData) {
+            const tbody = document.querySelector('#resultsTable tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${entry.student}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${entry.stream}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${entry.year}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${entry.exam}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="editEntry(${entry.id})" class="text-indigo-600 hover:text-indigo-900">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button onclick="deleteEntry(${entry.id})" class="ml-4 text-red-600 hover:text-red-900">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Edit entry
+        function editEntry(id) {
+            const entry = marksData.find(item => item.id === id);
+            if (entry) {
+                // Populate form with entry data
+                document.getElementById('studentName').value = entry.student;
+                document.getElementById('stream').value = entry.stream;
+                document.getElementById('year').value = entry.year;
+                document.getElementById('examType').value = entry.exam;
+                document.getElementById('combination').value = entry.combination;
+                document.getElementById('section').value = entry.section;
+
+                // Trigger combination change to update marks fields
+                document.getElementById('combination').dispatchEvent(new Event('change'));
+
+                // Populate marks
+                setTimeout(() => {
+                    Object.entries(entry.marks).forEach(([subject, mark]) => {
+                        const input = document.querySelector(`input[name="${subject}"]`);
+                        if (input) input.value = mark;
+                    });
+                }, 100);
+
+                // Remove old entry
+                deleteEntry(id);
+            }
+        }
+
+        // Delete entry
+        function deleteEntry(id) {
+            marksData = marksData.filter(item => item.id !== id);
+            localStorage.setItem('marksData', JSON.stringify(marksData));
+            updateTable();
+        }
+
+        // Initial table update
+        updateTable();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
